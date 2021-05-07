@@ -29,6 +29,15 @@ func (t *TokenList) Read() Token {
 	return token
 }
 
+func (t *TokenList) Peek() Token {
+	token := Token{
+		TokenType: t.cur.TokenType,
+		Value:     t.cur.Value,
+	}
+	//t.cur = t.cur.next
+	return token
+}
+
 func (t *TokenList) HasMore() bool {
 	return t.cur != nil
 }

@@ -32,7 +32,8 @@ func (p *Parser) ParseJsonObject() map[string]interface{} {
 			}
 			if key != "" {
 				jsonObj[key] = p.ParseJsonObject()
-				expectToken = tokenizer.END_OBJECT
+				key = ""
+				expectToken = tokenizer.END_OBJECT | tokenizer.SEP_COMMA
 			} else {
 				p.Read()
 				jsonObj = make(map[string]interface{})

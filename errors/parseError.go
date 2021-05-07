@@ -1,27 +1,11 @@
 package errors
 
-type ParseBoolError struct {
+type ParseError struct {
 	error
 }
 
-func (p ParseBoolError) Error() string {
-	return "some thing error when you parse your bool type!!!"
-}
-
-type ParseFloatError struct {
-	error
-}
-
-func (p ParseFloatError) Error() string {
-	return "some thing error when you parse your float type!!!"
-}
-
-type ParseNullError struct {
-	error
-}
-
-func (p ParseNullError) Error() string {
-	return "some thing error when you parse your null type!!!"
+func (p ParseError) Error() string {
+	return "your json is parser failed!"
 }
 
 type TokenTypeParseError struct {

@@ -22,26 +22,26 @@ func GetTokenList(jsonStr string) *TokenList {
 		case ']':
 			endArray(tokenList)
 		case 't', 'f':
-			err := Bool(tokenList, reader, r)
+			err := getBool(tokenList, reader, r)
 			if err != nil {
 				log.Fatal(err)
 			}
 		case 'n':
-			err := Null(tokenList, reader, r)
+			err := getNull(tokenList, reader, r)
 			if err != nil {
 				log.Fatal(err)
 			}
 		case '"':
-			String(tokenList, reader, r)
+			getString(tokenList, reader, r)
 		case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-			err := number(tokenList, reader, r)
+			err := getNumber(tokenList, reader, r)
 			if err != nil {
 				log.Fatal(err)
 			}
 		case ':':
-			Colon(tokenList)
+			getColon(tokenList)
 		case ',':
-			Comma(tokenList)
+			getComma(tokenList)
 		}
 	}
 	// help gc
@@ -77,7 +77,7 @@ func beginArray(list *TokenList, r *reader) {
 	})
 }
 
-func String(list *TokenList, r *reader, ch rune) {
+func getString(list *TokenList, r *reader, ch rune) {
 	sVal := ""
 
 	for r.peek() != '"' {
@@ -90,7 +90,7 @@ func String(list *TokenList, r *reader, ch rune) {
 	})
 }
 
-func Null(list *TokenList, r *reader, ch rune) error {
+func getNull(list *TokenList, r *reader, ch rune) error {
 	nVal := string(ch)
 	for i := 0; isNotEnd(r.peek()) && r.hasMore(); i++ {
 		nVal += string(r.read())
@@ -105,7 +105,7 @@ func Null(list *TokenList, r *reader, ch rune) error {
 	return nil
 }
 
-func Bool(list *TokenList, r *reader, ch rune) error {
+func getBool(list *TokenList, r *reader, ch rune) error {
 	bVal := string(ch)
 	if bVal == "t" {
 		for i := 0; isNotEnd(r.peek()) && r.hasMore(); i++ {
@@ -138,14 +138,14 @@ func Bool(list *TokenList, r *reader, ch rune) error {
 	}
 }
 
-func number(list *TokenList, r *reader, ch rune) error {
+func getNumber(list *TokenList, r *reader, ch rune) error {
 	nVal := string(ch)
 	for isNotEnd(r.peek()) {
 		nVal += string(r.read())
 	}
-	float, err := strconv.ParseFloat(nVal, 32)
+	float, err := strconv.ParseFloat(nVal, 64)
 	if err != nil {
-		return errors.ParseFloatError{}
+		return errors.ParseNumberError{}
 	}
 	list.Add(Token{
 		TokenType: NUMBER,
@@ -154,14 +154,14 @@ func number(list *TokenList, r *reader, ch rune) error {
 	return nil
 }
 
-func Colon(list *TokenList) {
+func getColon(list *TokenList) {
 	list.Add(Token{
 		TokenType: SEP_COLON,
 		Value:     ':',
 	})
 }
 
-func Comma(list *TokenList) {
+func getComma(list *TokenList) {
 	list.Add(Token{
 		TokenType: SEP_COMMA,
 		Value:     ',',

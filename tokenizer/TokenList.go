@@ -1,7 +1,5 @@
 package tokenizer
 
-import "fmt"
-
 type Token struct {
 	TokenType TokenType
 	Value     interface{}
@@ -44,12 +42,4 @@ func (t *TokenList) HasMore() bool {
 
 func (t *TokenList) ReSet()  {
 	t.cur = t.tokens.next
-}
-
-func (t TokenList) ToString()  {
-	t.ReSet()
-	for t.HasMore() {
-		fmt.Printf("%v\n", t.cur.Value)
-		t.cur = t.cur.next
-	}
 }

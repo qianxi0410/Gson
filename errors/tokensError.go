@@ -1,27 +1,27 @@
 package errors
 // some error when your parse your token
 
-type ParseBoolError struct {
+type GetBoolTokenError struct {
 	error
 }
 
-func (p ParseBoolError) Error() string {
+func (p GetBoolTokenError) Error() string {
 	return "some thing error when you parse your bool type!!!"
 }
 
-type ParseNumberError struct {
+type GetNumberTokenError struct {
 	error
 }
 
-func (p ParseNumberError) Error() string {
+func (p GetNumberTokenError) Error() string {
 	return "some thing error when you parse your float type!!!"
 }
 
-type ParseNullError struct {
+type GetNullTokenError struct {
 	error
 }
 
-func (p ParseNullError) Error() string {
+func (p GetNullTokenError) Error() string {
 	return "some thing error when you parse your null type!!!"
 }
 

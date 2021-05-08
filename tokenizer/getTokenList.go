@@ -96,7 +96,7 @@ func getNull(list *TokenList, r *reader, ch rune) error {
 		nVal += string(r.read())
 	}
 	if nVal != "null" {
-		return errors.ParseNullError{}
+		return errors.GetNullTokenError{}
 	}
 	list.Add(Token{
 		TokenType: NULL,
@@ -113,7 +113,7 @@ func getBool(list *TokenList, r *reader, ch rune) error {
 		}
 		
 		if bVal != "true" {
-			return errors.ParseBoolError{}
+			return errors.GetBoolTokenError{}
 		}
 		
 		list.Add(Token{
@@ -127,7 +127,7 @@ func getBool(list *TokenList, r *reader, ch rune) error {
 		}
 		
 		if bVal != "false" {
-			return errors.ParseBoolError{}
+			return errors.GetBoolTokenError{}
 		}
 		
 		list.Add(Token{
@@ -145,7 +145,7 @@ func getNumber(list *TokenList, r *reader, ch rune) error {
 	}
 	float, err := strconv.ParseFloat(nVal, 64)
 	if err != nil {
-		return errors.ParseNumberError{}
+		return errors.GetNumberTokenError{}
 	}
 	list.Add(Token{
 		TokenType: NUMBER,

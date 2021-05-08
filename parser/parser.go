@@ -10,10 +10,13 @@ type Parser struct {
 	tokenizer.TokenList
 }
 
-func GetParser(jsonStr string) *Parser {
-	list := tokenizer.GetTokenList(jsonStr)
+func GetParser(jsonStr string) (*Parser, error) {
+	list, err := tokenizer.GetTokenList(jsonStr)
+	if err != nil {
+		return nil, err
+	}
 	list.ReSet()
-	return &Parser{*list}
+	return &Parser{*list}, nil
 }
 
 func (p *Parser) ParseJsonObject() (map[string]interface{}, error) {
@@ -29,12 +32,12 @@ func (p *Parser) ParseJsonObject() (map[string]interface{}, error) {
 		switch tokenType {
 		case tokenizer.BEGIN_OBJECT:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			if key != "" {
 				object, err := p.ParseJsonObject()
 				if err != nil {
-					log.Fatal(err)
+					return nil, err
 				}
 				jsonObj[key] = object
 				key = ""
@@ -46,7 +49,7 @@ func (p *Parser) ParseJsonObject() (map[string]interface{}, error) {
 			}
 		case tokenizer.END_OBJECT:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			return jsonObj, nil
@@ -56,16 +59,16 @@ func (p *Parser) ParseJsonObject() (map[string]interface{}, error) {
 			}
 			array, err := p.ParseJsonArray()
 			if err != nil {
-				 log.Fatal(err)
+				 return nil, err
 			}
 			jsonObj[key] = array
 			key = ""
 			expectToken = tokenizer.END_OBJECT | tokenizer.SEP_COMMA
 		case tokenizer.END_ARRAY: // never
-			panic("never !!")
+			panic("error when your parse json object !")
 		case tokenizer.STRING:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			if key != "" {
@@ -78,7 +81,7 @@ func (p *Parser) ParseJsonObject() (map[string]interface{}, error) {
 			}
 		case tokenizer.NUMBER:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			if key == "" {
@@ -90,7 +93,7 @@ func (p *Parser) ParseJsonObject() (map[string]interface{}, error) {
 			}
 		case tokenizer.NULL:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			if key == "" {
@@ -114,13 +117,13 @@ func (p *Parser) ParseJsonObject() (map[string]interface{}, error) {
 			}
 		case tokenizer.SEP_COMMA:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			expectToken = tokenizer.END_OBJECT | tokenizer.STRING
 		case tokenizer.SEP_COLON:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			expectToken = tokenizer.BOOLEAN | tokenizer.STRING |
@@ -133,7 +136,24 @@ func (p *Parser) ParseJsonObject() (map[string]interface{}, error) {
 
 func checkTokenType(real, expect tokenizer.TokenType) error {
 	if real & expect == 0 {
-		return errors.TokenTypeParseError{}
+		switch real {
+		case tokenizer.BEGIN_OBJECT, tokenizer.END_OBJECT:
+			return errors.ObjectTypeParseError{}
+		case tokenizer.BEGIN_ARRAY, tokenizer.END_ARRAY:
+			return errors.ArrayTypeParseError{}
+		case tokenizer.STRING:
+			return errors.StringTypeParseError{}
+		case tokenizer.NUMBER:
+			return errors.NumberTypeParseError{}
+		case tokenizer.NULL:
+			return errors.NullTypeParseError{}
+		case tokenizer.SEP_COLON:
+			return errors.ColonTypeParseError{}
+		case tokenizer.SEP_COMMA:
+			return errors.CommaTypeParseError{}
+		case tokenizer.BOOLEAN:
+			return errors.BoolTypeParseError{}
+		}
 	}
 	return nil
 }
@@ -151,75 +171,78 @@ func (p *Parser) ParseJsonArray() ([]interface{}, error) {
 		switch tokenType {
 		case tokenizer.BEGIN_ARRAY:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			if !flag {
 				p.Read()
 				jsonArray = make([]interface{}, 0, 1 << 6)
 				flag = true
-				expectToken = tokenizer.END_ARRAY | tokenizer.STRING | tokenizer.BEGIN_ARRAY | tokenizer.NUMBER | tokenizer.NULL | tokenizer.BOOLEAN | tokenizer.BEGIN_OBJECT
+				expectToken = tokenizer.END_ARRAY | tokenizer.STRING |
+							tokenizer.BEGIN_ARRAY | tokenizer.NUMBER |
+							tokenizer.NULL | tokenizer.BOOLEAN |
+							tokenizer.BEGIN_OBJECT
 			} else {
 				array, err := p.ParseJsonArray()
 				if err != nil {
-					log.Fatal(err)
+					return nil, err
 				}
 				jsonArray = append(jsonArray, array)
 				expectToken = tokenizer.SEP_COMMA | tokenizer.END_ARRAY
 			}
 		case tokenizer.END_ARRAY:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			return jsonArray, nil
 		case tokenizer.BEGIN_OBJECT:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			object, err := p.ParseJsonObject()
 			if err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			jsonArray = append(jsonArray, object)
 			expectToken = tokenizer.SEP_COMMA | tokenizer.END_ARRAY
 		case tokenizer.END_OBJECT:
-			panic("never !!")
+			panic("error when your parse json array !")
 		case tokenizer.STRING:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			jsonArray = append(jsonArray, tokenValue.(string))
 			expectToken = tokenizer.SEP_COMMA | tokenizer.END_ARRAY
 		case tokenizer.NUMBER:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			jsonArray = append(jsonArray, tokenValue.(float64))
 			expectToken = tokenizer.SEP_COMMA | tokenizer.END_ARRAY
 		case tokenizer.NULL:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			jsonArray = append(jsonArray, nil)
 			expectToken = tokenizer.SEP_COMMA | tokenizer.END_ARRAY
 		case tokenizer.BOOLEAN:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			jsonArray = append(jsonArray, tokenValue.(bool))
 			expectToken = tokenizer.SEP_COMMA | tokenizer.END_ARRAY
 		case tokenizer.SEP_COMMA:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			p.Read()
 			expectToken = tokenizer.NULL | tokenizer.STRING |
-								tokenizer.NUMBER | tokenizer.BEGIN_OBJECT |
-									tokenizer.BEGIN_ARRAY | tokenizer.BOOLEAN
+							tokenizer.NUMBER | tokenizer.BEGIN_OBJECT |
+							tokenizer.BEGIN_ARRAY | tokenizer.BOOLEAN
 		case tokenizer.SEP_COLON: // never
 			panic("error when your parse json array !")
 		}

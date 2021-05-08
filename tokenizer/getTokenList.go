@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func GetTokenList(jsonStr string) *TokenList {
+func GetTokenList(jsonStr string) (*TokenList, error) {
 	tokenList := getTokenList()
 	reader := convStr2Reader(jsonStr)
 
@@ -30,14 +30,14 @@ func GetTokenList(jsonStr string) *TokenList {
 		case 'n':
 			err := getNull(tokenList, reader, r)
 			if err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 		case '"':
 			getString(tokenList, reader)
 		case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			err := getNumber(tokenList, reader, r)
 			if err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 		case ':':
 			getColon(tokenList)
@@ -47,7 +47,7 @@ func GetTokenList(jsonStr string) *TokenList {
 	}
 	// help gc
 	reader = nil
-	return tokenList
+	return tokenList, nil
 }
 
 func endObject(list *TokenList) {

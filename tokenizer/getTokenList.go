@@ -18,7 +18,7 @@ func GetTokenList(jsonStr string) *TokenList {
 		case '}':
 			endObject(tokenList)
 		case '[':
-			beginArray(tokenList, reader)
+			beginArray(tokenList)
 		case ']':
 			endArray(tokenList)
 		case 't', 'f':
@@ -32,7 +32,7 @@ func GetTokenList(jsonStr string) *TokenList {
 				log.Fatal(err)
 			}
 		case '"':
-			getString(tokenList, reader, r)
+			getString(tokenList, reader)
 		case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			err := getNumber(tokenList, reader, r)
 			if err != nil {
@@ -70,14 +70,14 @@ func endArray(list *TokenList) {
 	})
 }
 
-func beginArray(list *TokenList, r *reader) {
+func beginArray(list *TokenList) {
 	list.Add(Token{
 		TokenType: BEGIN_ARRAY,
 		Value:     '[',
 	})
 }
 
-func getString(list *TokenList, r *reader, ch rune) {
+func getString(list *TokenList, r *reader) {
 	sVal := ""
 
 	for r.peek() != '"' {

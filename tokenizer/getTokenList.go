@@ -1,6 +1,7 @@
 package tokenizer
 
 import (
+	"bytes"
 	"gson/errors"
 	"log"
 	"strconv"
@@ -78,15 +79,14 @@ func beginArray(list *TokenList) {
 }
 
 func getString(list *TokenList, r *reader) {
-	sVal := ""
-
+	var buf bytes.Buffer
 	for r.peek() != '"' {
-		sVal += string(r.read())
+		buf.WriteRune(r.read())
 	}
 	r.read()
 	list.Add(Token{
 		TokenType: STRING,
-		Value:     sVal,
+		Value:     buf.String(),
 	})
 }
 

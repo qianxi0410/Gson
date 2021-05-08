@@ -92,7 +92,7 @@ func getString(list *TokenList, r *reader) {
 
 func getNull(list *TokenList, r *reader, ch rune) error {
 	nVal := string(ch)
-	for i := 0; isNotEnd(r.peek()) && r.hasMore(); i++ {
+	for i := 0; isNotEndForNull(r.peek()) && r.hasMore() && len(nVal) <= 4; i++ {
 		nVal += string(r.read())
 	}
 	if nVal != "null" {
@@ -108,7 +108,7 @@ func getNull(list *TokenList, r *reader, ch rune) error {
 func getBool(list *TokenList, r *reader, ch rune) error {
 	bVal := string(ch)
 	if bVal == "t" {
-		for i := 0; isNotEnd(r.peek()) && r.hasMore(); i++ {
+		for i := 0; isNotEndForBool(r.peek()) && r.hasMore() && len(bVal) <= 4; i++ {
 			bVal += string(r.read())
 		}
 		
@@ -122,7 +122,7 @@ func getBool(list *TokenList, r *reader, ch rune) error {
 		})
 		return nil
 	} else {
-		for i := 0; isNotEnd(r.peek()) && r.hasMore(); i++ {
+		for i := 0; isNotEndForBool(r.peek()) && r.hasMore() && len(bVal) <= 4; i++ {
 			bVal += string(r.read())
 		}
 		
@@ -140,7 +140,7 @@ func getBool(list *TokenList, r *reader, ch rune) error {
 
 func getNumber(list *TokenList, r *reader, ch rune) error {
 	nVal := string(ch)
-	for isNotEnd(r.peek()) {
+	for isNotEndForNumber(r.peek()) {
 		nVal += string(r.read())
 	}
 	float, err := strconv.ParseFloat(nVal, 64)

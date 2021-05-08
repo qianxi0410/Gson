@@ -120,7 +120,7 @@ func (p *Parser) ParseJsonObject() (map[string]interface{}, error) {
 				return nil, err
 			}
 			p.Read()
-			expectToken = tokenizer.END_OBJECT | tokenizer.STRING
+			expectToken = tokenizer.STRING
 		case tokenizer.SEP_COLON:
 			if err := checkTokenType(tokenType, expectToken); err != nil {
 				return nil, err

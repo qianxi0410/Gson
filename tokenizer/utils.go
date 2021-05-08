@@ -7,8 +7,23 @@ func isUseless(r rune) bool {
 	return false
 }
 
-func isNotEnd(r rune) bool {
-	if r != '}' && r != ']' && r != ',' && r != ':' {
+
+func isNotEndForNull(r rune) bool {
+	if r != '}' && r != ']' && r != ',' {
+		return true
+	}
+	return false
+}
+
+func isNotEndForBool(r rune) bool {
+	if r != '}' && r != ']' && r != ',' {
+		return true
+	}
+	return false
+}
+
+func isNotEndForNumber(r rune) bool {
+	if r != '}' && r != ']' && r != ',' {
 		return true
 	}
 	return false

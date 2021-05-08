@@ -6,7 +6,7 @@ type GetBoolTokenError struct {
 }
 
 func (p GetBoolTokenError) Error() string {
-	return "some thing error when you parse your bool type!!!"
+	return "some thing error when you get your bool token!!!"
 }
 
 type GetNumberTokenError struct {
@@ -14,7 +14,7 @@ type GetNumberTokenError struct {
 }
 
 func (p GetNumberTokenError) Error() string {
-	return "some thing error when you parse your float type!!!"
+	return "some thing error when you get your float token!!!"
 }
 
 type GetNullTokenError struct {
@@ -22,6 +22,6 @@ type GetNullTokenError struct {
 }
 
 func (p GetNullTokenError) Error() string {
-	return "some thing error when you parse your null type!!!"
+	return "some thing error when you get your null token!!!"
 }
 

@@ -3,7 +3,7 @@ package tokenizer
 type TokenType uint16
 
 const (
-	BEGIN_OBJECT = TokenType(1 << iota)
+	BEGIN_OBJECT TokenType = 1 << iota
 	END_OBJECT
 	BEGIN_ARRAY
 	END_ARRAY
